@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 import os
-from django.contrib import admin
-from django.urls import path, include
-from .views import api_root  # if you have an api_root view
+import sys
 
-codespace_name = os.environ.get('CODESPACE_NAME')
-if codespace_name:
-    base_url = f"https://{codespace_name}-8000.app.github.dev"
-else:
-    base_url = "http://localhost:8000"
+def main():
+    """Run administrative tasks."""
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'octofit_tracker.settings')
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+    if os.environ.get('CODESPACE_NAME'):
+        ALLOWED_HOSTS.append(f"{os.environ.get('CODESPACE_NAME')}-8000.app.github.dev")
+    try:
+        from django.core.management import execute_from_command_line
+    except ImportError as exc:
+        raise ImportError(
+            "Couldn't import Django. Are you sure it's installed and "
+            "available on your PYTHONPATH environment variable? Did you "
+            "forget to activate a virtual environment?"
+        ) from exc
+    execute_from_command_line(sys.argv)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-if os.environ.get('CODESPACE_NAME'):
-    ALLOWED_HOSTS.append(f"{os.environ.get('CODESPACE_NAME')}-8000.app.github.dev")
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', api_root, name='api-root'),
-    path('api/', include('your_app.urls')),  # replace 'your_app' with your actual app name
-]
+if __name__ == '__main__':
+    main()
